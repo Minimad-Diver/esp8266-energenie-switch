@@ -2,13 +2,15 @@
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
-#include <WiFiManager.h> // https://github.com/tzapu/WiFiManager WiFi Configuration Magic
 #include <RCSwitch.h>
 #include <EEPROM.h>
 
+const char* ssid = "Marphus";
+const char* password = "fafafafafa";
+
 const int DEBUG_LED = 13;
-const int TX_PIN = 4;
-const int RX_PIN = 5;
+const int TX_PIN = 2;
+const int RX_PIN = 0;
 
 // Handler defs from "handlers.ino"
 void handleRoot();
@@ -21,7 +23,6 @@ void handleCmd2();
 void handleListen();
 void handleNotFound();
 
-WiFiManager wifiManager;
 ESP8266WebServer server(80);
 RCSwitch rcSwitch = RCSwitch();
 
@@ -29,18 +30,6 @@ String getDeviceName() {
   return "ESPRFSwitch:" + String(ESP.getChipId());
 }
 
-void wifi_auto() {
-  wifiManager.autoConnect(getDeviceName().c_str());
-
-  wifiManager.setAPCallback(configModeCallback);
-}
-
-void configModeCallback (WiFiManager *myWiFiManager) {
-  Serial.println("Entered config mode");
-  Serial.println(WiFi.softAPIP());
-
-  Serial.println(myWiFiManager->getConfigPortalSSID());
-}
 
 String getConfigJson() {
   uint8_t len = EEPROM.read(0);
@@ -55,26 +44,33 @@ String getConfigJson() {
 
   return buf;
 }
-
-void handshake() {
-  if (!MDNS.begin(getDeviceName().c_str())) {
-    Serial.println("Error setting up MDNS responder!");
-  }
-
-  Serial.println("mDNS responder started");
-  MDNS.addService("esp", "tcp", 80); // Announce esp tcp service on port 80
-}
-
 void setup(void) {
   EEPROM.begin(512);
 
   Serial.begin(115200);
+
+    WiFi.begin(ssid, password);
+  Serial.println("");
+
+  // Wait for connection
+    Serial.println("Connecting WIFI ");
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.print("Connected to ");
+  Serial.println(ssid);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+
+
   pinMode(DEBUG_LED, OUTPUT);
 
   rcSwitch.enableTransmit(TX_PIN);
-  rcSwitch.enableReceive(digitalPinToInterrupt(RX_PIN));
+  rcSwitch.enableReceive(RX_PIN);
 
-  wifi_auto();
 
   Serial.println("Configured");
   Serial.println(WiFi.localIP());
@@ -95,7 +91,6 @@ void setup(void) {
 
   Serial.println("HTTP server started");
 
-  handshake();
 }
 
 void loop(void){
