@@ -6,6 +6,7 @@ This is a fork of [cjdell/esp-rf-switch](https://github.com/cjdell/esp-rf-switch
 The ESP8266 code is very similar (receiver functionality and auto-wifi have been removed),
 but this README is slightly more detailed.
 
+Also, checkout this [Radio + ESP8266 tutorial](http://randomnerdtutorials.com/esp8266-remote-controlled-sockets/)
 ## Prequisties
 
 - An ESP8266 module (tested using the ESP-12E)
