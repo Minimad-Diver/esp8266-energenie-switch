@@ -23,7 +23,7 @@ but this README is slightly more detailed.
 
 ## Hardware (ESP8266 + Transmitter)
 
-![Hardware](images/hardware.jpg)
+![Hardware](images/hardware.png)
 
 ## Fetch energenie remote values
 
